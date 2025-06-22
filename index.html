@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Flashcard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="overflow: hidden;">
+
+ <label class="switch">
+  <input type="checkbox" id="mode-toggle">
+  <span class="slider round"></span>
+</label>
+<button class="switch-app-button" onclick="window.location.href='addQuestion.html'">
+  + Add Question
+</button>
+<div class="flashcard-wrapper">   
+  
+  <div id="star-icon" onclick="toggleStar()">☆</div>
+  <div id="card-counter" class="card-counter">0 / 0
+  </div>
+  
+    <div class="flashcard-container" id="flashcard-container">
+
+    </div>
+    <div class="nav-buttons">
+      <button onclick="prevCard()">← Trước</button>
+      <button onclick="nextCard()">Tiếp →</button>
+      <button onclick="loadFlashcardsChaos()" id="shuffle-button">⤾ Đảo thẻ</button>
+<button onclick="exportStarredCards()">Export Starred</button>
+
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quiz Creator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background-color: #f9f9f9;
+      }
+      h1 {
+        text-align: center;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+      .column {
+        flex: 1;
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+        resize: vertical;
+        padding: 8px;
+        font-size: 14px;
+      }
+      .buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      button,
+      label {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      .delete-btn {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+      }
+      .delete-btn:hover {
+        background-color: #e60000;
+      }
+      .header-row {
+        display: flex;
+        gap: 10px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .header-row div {
+        flex: 1;
+        text-align: center;
+      }
+      .index-header {
+        width: 40px;
+      }
+      .action-header {
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="switch-app-button"
+      onclick="window.location.href='index.html'"
+    >
+      🔄 Back to Flashcards
+    </button>
+    <h1>Quiz Text Generator</h1>
+
+    <div class="header-row">
+      <div class="index-header">#</div>
+      <div>Câu hỏi</div>
+      <div>Đáp án</div>
+      <div>Giải thích đáp án</div>
+      <div class="action-header">Xóa</div>
+    </div>
+
+    <div id="inputArea"></div>
+
+    <div class="buttons">
+      <button onclick="addRow()">➕ Thêm</button>
+      <button onclick="saveToFile()">💾 Lưu</button>
+      <label for="fileLoader" style="background: #eee; border: 1px solid #ccc"
+        >📂 Tải File</label
+      >
+      <input type="file" id="fileLoader" accept=".txt" />
+    </div>
+
+    <script>
+      function addRow(
+        questionText = "",
+        answerText = "",
+        explanationText = ""
+      ) {
+        const container = document.getElementById("inputArea");
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const indexBox = document.createElement("div");
+        indexBox.className = "index-box";
+        indexBox.style.width = "40px";
+        indexBox.style.textAlign = "center";
+        indexBox.style.fontWeight = "bold";
+        indexBox.textContent = container.children.length + 1;
+
+        const questionBox = document.createElement("textarea");
+        questionBox.placeholder = `Nhập câu hỏi`;
+        questionBox.className = "question";
+        questionBox.value = questionText;
+
+        const answerBox = document.createElement("textarea");
+        answerBox.placeholder = `Nhập đáp án`;
+        answerBox.className = "answer";
+        answerBox.value = answerText;
+
+        const explanationBox = document.createElement("textarea");
+        explanationBox.placeholder = `Nhập giải thích đáp án`;
+        explanationBox.className = "explanation";
+        explanationBox.value = explanationText;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-btn";
+        deleteButton.textContent = "❌";
+        deleteButton.onclick = function () {
+          row.remove();
+          updateRowNumbers();
+        };
+
+        const questionCol = document.createElement("div");
+        questionCol.className = "column";
+        questionCol.appendChild(questionBox);
+
+        const answerCol = document.createElement("div");
+        answerCol.className = "column";
+        answerCol.appendChild(answerBox);
+
+        const explanationCol = document.createElement("div");
+        explanationCol.className = "column";
+        explanationCol.appendChild(explanationBox);
+
+        row.appendChild(indexBox);
+        row.appendChild(questionCol);
+        row.appendChild(answerCol);
+        row.appendChild(explanationCol);
+        row.appendChild(deleteButton);
+
+        container.appendChild(row);
+        updateRowNumbers();
+      }
+
+      function updateRowNumbers() {
+        const indexes = document.querySelectorAll(".index-box");
+        indexes.forEach((box, idx) => {
+          box.textContent = idx + 1;
+        });
+      }
+
+      function saveToFile() {
+        const questions = document.querySelectorAll(".question");
+        const answers = document.querySelectorAll(".answer");
+        const explanations = document.querySelectorAll(".explanation");
+        let entries = [];
+
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i].value.trim();
+          const a = answers[i].value.trim();
+          const e = explanations[i].value.trim();
+          if (q || a || e) {
+            entries.push(`${q}\n**\n${a}\n**\n${e}`);
+          }
+        }
+
+        const content = entries.join("\n??\n");
+
+        const blob = new Blob([content], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "quiz_data.txt";
+        link.click();
+      }
+
+      document
+        .getElementById("fileLoader")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const content = event.target.result;
+
+            const blocks = content
+              .split(/\?\?/g) // chỉ cần tách theo ??
+              .map((b) => b.trim())
+              .filter(Boolean);
+
+            document.getElementById("inputArea").innerHTML = "";
+
+            blocks.forEach((block) => {
+              const parts = block
+                .split(/\*\*/g) // tách theo **
+                .map((p) => p.trim());
+
+              // mặc định rỗng
+              let question = "";
+              let answer = "";
+              let explanation = "";
+
+              if (parts.length === 3) {
+                [question, answer, explanation] = parts;
+              } else if (parts.length === 2) {
+                [question, answer] = parts;
+              } else if (parts.length === 1) {
+                question = parts[0];
+              }
+
+              addRow(question, answer, explanation);
+            });
+          };
+          reader.readAsText(file);
+        });
+    </script>
+  </body>
+</html>
