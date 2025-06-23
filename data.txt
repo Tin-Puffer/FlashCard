@@ -949,7 +949,7 @@ B. The event has multiple handlers registered in the project.
 C. The event handler calls a trigger.
 D. An event is fired 'ontouchend'' and is unhandled.
 **
-B. The event has multiple handlers registered in the project.  ✅
+A. The event is fired from a custom renderer.  ✅
 **
 Explanation:
 The infinite loop in the application event could be caused by multiple handlers registered in the project. If the event is fired and then handled in such a way that the handling leads to the event being fired again, this can create a loop. Care must be taken to ensure that the handling of the event does not re-trigger the same event unintentionally.
